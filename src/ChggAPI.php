@@ -17,6 +17,14 @@ class ChggAPI {
 		CHAMPIONS_CHAMP_DATA = "champData",
 		CHAMPIONS_SORT = "sort",
 		CHAMPIONS_ABRIDGED = "abridged",
+		CHAMPION_PARAMETERS = [self::CHAMPIONS_LIMIT, self::CHAMPIONS_SKIP,
+			self::CHAMPIONS_ELO, self::CHAMPIONS_CHAMP_DATA,
+			self::CHAMPIONS_SORT, self::CHAMPIONS_ABRIDGED],
+
+		MATCHUP_ELO = "elo",
+		MATCHUP_SKIP = "skip",
+		MATCHUP_LIMIT = "limit",
+		MATCHUP_PARAMETERS = [self::MATCHUP_ELO, self::MATCHUP_SKIP, self::MATCHUP_LIMIT],
 
 		API_KEY = "api_key";
 
@@ -41,26 +49,42 @@ class ChggAPI {
 	}
 
 	public function getChampions(array $params = []) {
-		$item = $this->cache->getItem(SELF::CHAMPIONS_ENDPOINT, $params);
+		$query = $this->prepareQuery(self::CHAMPION_PARAMETERS, $params);
+
+		$item = $this->cache->getItem(SELF::CHAMPIONS_ENDPOINT, $query);
 
 		if ($item->isHit()) {
 			$data = $item->get();
 		} else {
 			$item->lock();
 
-			$query = $this->prepareQuery(
-				[self::CHAMPIONS_LIMIT, self::CHAMPIONS_SKIP,
-				self::CHAMPIONS_ELO, self::CHAMPIONS_CHAMP_DATA,
-				self::CHAMPIONS_SORT, self::CHAMPIONS_ABRIDGED],
-				$params);
-
-
 			$response = $this->client->get("champions", [
 				"query" => $query
 			]);
 
 			$data = json_decode($response->getBody());
+			$item->set($data);
+			$this->cache->save($item);
+		}
 
+		return $data;
+	}
+
+	public function getMatchups(int $id, string $role, array $params = []) {
+		$query = $this->prepareQuery(self::MATCHUP_PARAMETERS, $params);
+
+		$item = $this->cache->getItem(self::MATCHUP_ENDPOINT, $params);
+
+		if ($item->isHit()) {
+			$data = $item->get();
+		} else {
+			$item->lock();
+
+			$response = $this->client->get("champions/".$id."/".$role."/matchups", [
+				"query" => $query
+			]);
+
+			$data = json_decode($response->getBody());
 			$item->set($data);
 			$this->cache->save($item);
 		}

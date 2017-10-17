@@ -20,6 +20,10 @@ $chggAPI->getCache()->getPool()->setDriver(new \Stash\Driver\FileSystem([
 	"path" => "cache/"
 ]));
 
+echo "Matchups:<br>";
+printr($chggAPI->getMatchups(36, "MIDDLE"));
+
+echo "All champions:<br>";
 printr($chggAPI->getChampions());
 
 ?>
