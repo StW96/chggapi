@@ -21,6 +21,9 @@ $chggAPI->getCache()->getPool()->setDriver(new \Stash\Driver\FileSystem([
 ]));
 
 echo "Matchups:<br>";
+printr($chggAPI->getMatchups(42));
+
+echo "Matchups with role:<br>";
 printr($chggAPI->getMatchups(36, "MIDDLE"));
 
 echo "All champions:<br>";

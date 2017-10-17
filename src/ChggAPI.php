@@ -70,17 +70,31 @@ class ChggAPI {
 		return $data;
 	}
 
-	public function getMatchups(int $id, string $role, array $params = []) {
+	public function getMatchups(int $id, string $role = null, array $params = []) {
 		$query = $this->prepareQuery(self::MATCHUP_PARAMETERS, $params);
 
-		$item = $this->cache->getItem(self::MATCHUP_ENDPOINT, $params);
+		$cacheQuery = $query;
+
+		if ($role != null) {
+			$cacheQuery["role"] = $role;
+		}
+
+		$item = $this->cache->getItem(self::MATCHUP_ENDPOINT, $cacheQuery);
 
 		if ($item->isHit()) {
 			$data = $item->get();
 		} else {
 			$item->lock();
 
-			$response = $this->client->get("champions/".$id."/".$role."/matchups", [
+			$url = "champions/".$id."/";
+
+			if ($role !== null) {
+				$url .= $role . "/";
+			}
+
+			$url .= "matchups";
+
+			$response = $this->client->get($url, [
 				"query" => $query
 			]);
 
