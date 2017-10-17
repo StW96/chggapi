@@ -11,20 +11,29 @@ class ChggAPI {
 		GENERAL_ENDPOINT = "general",
 		OVERALL_ENDPOINT = "overall",
 
+		CHAMPIONS_ID = "id",
 		CHAMPIONS_LIMIT = "limit",
 		CHAMPIONS_SKIP = "skip",
 		CHAMPIONS_ELO = "elo",
 		CHAMPIONS_CHAMP_DATA = "champData",
 		CHAMPIONS_SORT = "sort",
 		CHAMPIONS_ABRIDGED = "abridged",
-		CHAMPION_PARAMETERS = [self::CHAMPIONS_LIMIT, self::CHAMPIONS_SKIP,
+		CHAMPIONS_PARAMETERS = [self::CHAMPIONS_LIMIT, self::CHAMPIONS_SKIP,
 			self::CHAMPIONS_ELO, self::CHAMPIONS_CHAMP_DATA,
 			self::CHAMPIONS_SORT, self::CHAMPIONS_ABRIDGED],
 
+		MATCHUP_ID = "id",
 		MATCHUP_ELO = "elo",
 		MATCHUP_SKIP = "skip",
 		MATCHUP_LIMIT = "limit",
+		MATCHUP_ROLE = "role",
 		MATCHUP_PARAMETERS = [self::MATCHUP_ELO, self::MATCHUP_SKIP, self::MATCHUP_LIMIT],
+
+		GENERAL_ELO = "elo",
+		GENERAL_PARAMETERS = [self::GENERAL_ELO],
+
+		OVERALL_ELO = "elo",
+		OVERALL_PARAMETERS = [self::OVERALL_ELO],
 
 		API_KEY = "api_key";
 
@@ -48,17 +57,25 @@ class ChggAPI {
 		return $query;
 	}
 
-	public function getChampions(array $params = []) {
-		$query = $this->prepareQuery(self::CHAMPION_PARAMETERS, $params);
+	public function getChampions(int $id = null, array $params = []) {
+		$query = $this->prepareQuery(self::CHAMPIONS_PARAMETERS, $params);
+		$cacheQuery = $query;
 
-		$item = $this->cache->getItem(SELF::CHAMPIONS_ENDPOINT, $query);
+		$url = "champions";
+
+		if ($id !== null) {
+			$url .= "/".$id;
+			$cacheQuery[self::CHAMPIONS_ID] = $id;
+		}
+
+		$item = $this->cache->getItem(self::CHAMPIONS_ENDPOINT, $cacheQuery);
 
 		if ($item->isHit()) {
 			$data = $item->get();
 		} else {
 			$item->lock();
 
-			$response = $this->client->get("champions", [
+			$response = $this->client->get($url, [
 				"query" => $query
 			]);
 
@@ -74,9 +91,10 @@ class ChggAPI {
 		$query = $this->prepareQuery(self::MATCHUP_PARAMETERS, $params);
 
 		$cacheQuery = $query;
+		$cacheQuery[self::MATCHUP_ID] = $id;
 
 		if ($role != null) {
-			$cacheQuery["role"] = $role;
+			$cacheQuery[self::MATCHUP_ROLE] = $role;
 		}
 
 		$item = $this->cache->getItem(self::MATCHUP_ENDPOINT, $cacheQuery);
@@ -95,6 +113,50 @@ class ChggAPI {
 			$url .= "matchups";
 
 			$response = $this->client->get($url, [
+				"query" => $query
+			]);
+
+			$data = json_decode($response->getBody());
+			$item->set($data);
+			$this->cache->save($item);
+		}
+
+		return $data;
+	}
+
+	public function getGeneral(array $params = []) {
+		$query = $this->prepareQuery(self::GENERAL_PARAMETERS, $params);
+
+		$item = $this->cache->getItem(self::GENERAL_ENDPOINT, $query);
+
+		if ($item->isHit()) {
+			$data = $item->get();
+		} else {
+			$item->lock();
+
+			$response = $this->client->get("general", [
+				"query" => $query
+			]);
+
+			$data = json_decode($response->getBody());
+			$item->set($data);
+			$this->cache->save($item);
+		}
+
+		return $data;
+	}
+
+	public function getOverall(array $params = []) {
+		$query = $this->prepareQuery(self::OVERALL_PARAMETERS, $params);
+
+		$item = $this->cache->getItem(self::OVERALL_ENDPOINT, $query);
+
+		if ($item->isHit()) {
+			$data = $item->get();
+		} else {
+			$item->lock();
+
+			$response = $this->client->get("overall", [
 				"query" => $query
 			]);
 
