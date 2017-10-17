@@ -1,0 +1,16 @@
+{
+    "name": "stwiebe/chggapi",
+    "type": "library",
+    "require": {
+        "tedivm/stash": "^0.14.2",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "require-dev": {
+        "psr/log": "^1.0"
+    },
+	"autoload": {
+		"psr-4": {
+			"ChggAPI\\": "src/"
+		}
+	}
+}
