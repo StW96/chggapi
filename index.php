@@ -16,7 +16,10 @@ function printr($value, $return = false) {
 }
 
 $chggAPI = new ChggAPI("7ec89ef90cd2ed610d12b6be2644519e");
+$chggAPI->getCache()->getPool()->setDriver(new \Stash\Driver\FileSystem([
+	"path" => "cache/"
+]));
 
-$chggAPI->getChampions([ChggAPI::CHAMPIONS_LIMIT => 20]);
+printr($chggAPI->getChampions());
 
 ?>
