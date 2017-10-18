@@ -1,6 +1,15 @@
 {
     "name": "stwiebe/chggapi",
+	"description": "A wrapper for https://champion.gg's API.",
     "type": "library",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Stefan Wiebe",
+			"email": "m@stwiebe.de",
+			"role": "Developer"
+		}
+	],
     "require": {
         "tedivm/stash": "^0.14.2",
         "guzzlehttp/guzzle": "^6.3"
