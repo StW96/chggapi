@@ -1,11 +1,12 @@
 {
     "name": "stwiebe/chggapi",
+	"description": "A wrapper for https://champion.gg's API.",
     "type": "library",
 	"license": "MIT",
 	"authors": [
 		{
 			"name": "Stefan Wiebe",
-			"email": "m@stwiebe.de"
+			"email": "m@stwiebe.de",
 			"role": "Developer"
 		}
 	],
