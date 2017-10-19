@@ -1,6 +1,8 @@
 <?php
 namespace ChggAPI;
 
+use \Psr\Cache\CacheItemInterface;
+
 class Cache {
 	protected $pool;
 
@@ -11,17 +13,18 @@ class Cache {
 		ChggAPI::OVERALL_ENDPOINT => 86400
 	];
 
-	function __construct() {
+	public function __construct() {
 		$this->pool = new \Stash\Pool();
 	}
 
-	function getItem(string $endpoint, array $parameters) : \Psr\Cache\CacheItemInterface  {
+	public function getItem(string $endpoint,
+							array $parameters) : CacheItemInterface {
 		$cachePath = self::getCachePath($endpoint, $parameters);
 
 		return $this->pool->getItem($cachePath);
 	}
 
-	function save(\Psr\Cache\CacheItemInterface $item) {
+	public function save(\Psr\Cache\CacheItemInterface $item) {
 		$duration = array_filter($this->cacheDuration, function($key) use ($item) {
 			return substr($item->getKey(), 0, strlen($key)) === $key;
 		}, ARRAY_FILTER_USE_KEY);
@@ -34,7 +37,8 @@ class Cache {
 		$this->pool->save($item);
 	}
 
-	protected static function getCachePath(string $endpoint, array $params = []) : string {
+	protected static function getCachePath(string $endpoint,
+										   array $params = []) : string {
 		unset($params[ChggAPI::API_KEY]);
 		return $endpoint . "&" . http_build_query($params);
 	}

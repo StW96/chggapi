@@ -7,32 +7,34 @@ use GuzzleHttp\Client;
 class ChggAPI {
 	public const
 		CHAMPIONS_ENDPOINT = "champions",
-		MATCHUP_ENDPOINT = "matchup",
-		GENERAL_ENDPOINT = "general",
-		OVERALL_ENDPOINT = "overall",
+		MATCHUP_ENDPOINT   = "matchup",
+		GENERAL_ENDPOINT   = "general",
+		OVERALL_ENDPOINT   = "overall",
 
-		CHAMPIONS_ID = "id",
-		CHAMPIONS_LIMIT = "limit",
-		CHAMPIONS_SKIP = "skip",
-		CHAMPIONS_ELO = "elo",
+		CHAMPIONS_ID         = "id",
+		CHAMPIONS_LIMIT      = "limit",
+		CHAMPIONS_SKIP       = "skip",
+		CHAMPIONS_ELO        = "elo",
 		CHAMPIONS_CHAMP_DATA = "champData",
-		CHAMPIONS_SORT = "sort",
-		CHAMPIONS_ABRIDGED = "abridged",
+		CHAMPIONS_SORT       = "sort",
+		CHAMPIONS_ABRIDGED   = "abridged",
 		CHAMPIONS_PARAMETERS = [self::CHAMPIONS_LIMIT, self::CHAMPIONS_SKIP,
 			self::CHAMPIONS_ELO, self::CHAMPIONS_CHAMP_DATA,
 			self::CHAMPIONS_SORT, self::CHAMPIONS_ABRIDGED],
 
-		MATCHUP_ID = "id",
-		MATCHUP_ELO = "elo",
-		MATCHUP_SKIP = "skip",
-		MATCHUP_LIMIT = "limit",
-		MATCHUP_ROLE = "role",
-		MATCHUP_PARAMETERS = [self::MATCHUP_ELO, self::MATCHUP_SKIP, self::MATCHUP_LIMIT],
+		MATCHUP_ID         = "id",
+		MATCHUP_ELO        = "elo",
+		MATCHUP_SKIP       = "skip",
+		MATCHUP_LIMIT      = "limit",
+		MATCHUP_ROLE       = "role",
+		MATCHUP_PARAMETERS = [self::MATCHUP_ELO,
+							  self::MATCHUP_SKIP,
+							  self::MATCHUP_LIMIT],
 
-		GENERAL_ELO = "elo",
+		GENERAL_ELO        = "elo",
 		GENERAL_PARAMETERS = [self::GENERAL_ELO],
 
-		OVERALL_ELO = "elo",
+		OVERALL_ELO        = "elo",
 		OVERALL_PARAMETERS = [self::OVERALL_ELO],
 
 		API_KEY = "api_key";
@@ -42,29 +44,29 @@ class ChggAPI {
 
 	protected $cache;
 
-	function __construct($key) {
-		$this->key = $key;
+	public function __construct($key) {
+		$this->key    = $key;
 		$this->client = new Client(["base_uri" => "api.champion.gg/v2/"]);
 
 		$this->cache = new Cache();
 	}
 
 	protected function prepareQuery(array $keys = [], array $params = []) : array {
-		$query = array_fill_keys($keys, null);
-		$query = array_intersect_key($params, $query);
+		$query                = array_fill_keys($keys, null);
+		$query                = array_intersect_key($params, $query);
 		$query[self::API_KEY] = $this->key;
 
 		return $query;
 	}
 
 	public function getChampions(int $id = null, array $params = []) {
-		$query = $this->prepareQuery(self::CHAMPIONS_PARAMETERS, $params);
+		$query      = $this->prepareQuery(self::CHAMPIONS_PARAMETERS, $params);
 		$cacheQuery = $query;
 
 		$url = "champions";
 
 		if ($id !== null) {
-			$url .= "/".$id;
+			$url                           .= "/".$id;
 			$cacheQuery[self::CHAMPIONS_ID] = $id;
 		}
 
@@ -90,7 +92,7 @@ class ChggAPI {
 	public function getMatchups(int $id, string $role = null, array $params = []) {
 		$query = $this->prepareQuery(self::MATCHUP_PARAMETERS, $params);
 
-		$cacheQuery = $query;
+		$cacheQuery                   = $query;
 		$cacheQuery[self::MATCHUP_ID] = $id;
 
 		if ($role != null) {
